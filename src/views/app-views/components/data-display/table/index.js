@@ -93,6 +93,10 @@ export class TableComponent extends Component {
         case "checkBoxContent":
           console.log("checkBoxContent");
           handleCopy(checkBoxContent);
+          break
+        case "ReduxContent":
+          console.log("ReduxContent");
+          handleCopy(ReduxContent);
           break;
         default:
           break;
@@ -167,16 +171,23 @@ export class TableComponent extends Component {
         </DemoCard>
 
         <DemoCard code={RowSelectionCustomMd}>
-          <RowSelectionCustom />
+        
           <div
             onClick={() => {
               copyContent("checkBoxContent");
             }}
-          ></div>{" "}
+          >
+    <RowSelectionCustom />
+  </div>{" "}
         </DemoCard>
 
         <DemoCard code={HeadMd}>
-          <Head />
+   <div
+            onClick={() => {
+              copyContent("ReduxContent");
+            }}
+          >
+          <Head /> </div>{" "}
         </DemoCard>
         <DemoCard code={MultipleSorterMd}>
           <MultipleSorter />
@@ -841,3 +852,112 @@ const OnhandleCheckBox = ({ target }) => {
       setTableData(tempData);
     }
   };`;
+
+
+
+const ReduxContent  =`//App.js////////////////////////////////////////////////////////////////////////////
+
+import React from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { increment, decrement } from "./counterSlice";
+import { ApiCall } from "./action";
+import TablePage from "./CRUD/Table";
+
+function App() {
+  const count = useSelector((state) => state.counter.value);
+  const dispatch = useDispatch();
+
+  return (
+    <div>
+      <h1>Redux Counter App</h1>
+      <div>
+        <button onClick={() => dispatch(ApiCall())}>Increment</button>
+        <span>{count}</span>
+        <button onClick={() => dispatch(decrement())}>Decrement</button>
+
+        <TablePage/>
+      </div>
+    </div>
+  );
+}
+
+export default App;
+ 
+
+
+//Slice///////////////////////////////////////////////////////////////////////////////////
+
+import { createSlice } from '@reduxjs/toolkit';
+import { ApiCall } from './action';
+
+export const counterSlice = createSlice({
+  name: 'counter',
+  initialState: {
+    value: 0,
+  },
+  reducers: {
+    increment: (state,action) => {
+      state.value=action.payload
+      console.log("action",action)
+    },
+    decrement: state => {
+      state.value -= 1;
+    },
+  },
+});
+
+export const { increment, decrement } = counterSlice.actions;
+
+export default counterSlice.reducer;
+
+
+
+//Action////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+import { increment, decrement } from "./counterSlice";
+export const ApiCall = (params)=>(dispatch)=>{
+const headers = new Headers({
+  "Content-Type": "application/json",
+  "x-api-key": "DEMO-API-KEY"
+});
+// return "$&{"result"}"
+var requestOptions = {
+  method: 'GET',
+  headers: headers,
+  redirect: 'follow'
+};
+
+   fetch("https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1", requestOptions)
+//   .then(response => response.text())
+  .then(result =>result.json())
+  .then(response =>{ console.log("result",response[0].height); dispatch(increment(response[0].height))})
+  .catch(error => console.log('error', error)); 
+}
+
+
+//Reducer/////////////////////////////////////////////////////////////////////////////////////////////
+// store.js
+import { createStore, applyMiddleware } from 'redux';
+import {thunk} from 'redux-thunk'; 
+import { combineReducers } from 'redux'; 
+import counterReducer from './counterSlice';
+
+const rootReducer = combineReducers({
+ 
+    counter: counterReducer,
+  
+}); 
+
+const store = createStore(
+  rootReducer, // Combine all your reducers here
+  applyMiddleware(thunk)
+);
+
+export default store;
+
+// reducers/index.js
+
+ ;
+
+`
+
+
