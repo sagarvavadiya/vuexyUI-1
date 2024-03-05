@@ -24,6 +24,7 @@ import Multiple from './Multiple';
 import Danger from './Danger'
 import Ghost from './Ghost';
 import { css } from '@emotion/react';
+import CopyContent from "./CopyContent";
 
 export class ButtonComponent extends Component {
 
@@ -57,6 +58,7 @@ export class ButtonComponent extends Component {
 						<DemoCard code={disabledMd}><Disabled /></DemoCard>
 						<DemoCard code={multipleMd}><Multiple /></DemoCard>
 						<DemoCard code={dangerMd}><Danger /></DemoCard>
+						<DemoCard code={blockMd}><CopyContent /></DemoCard>
 					</Col>
 				</Row>
 				<ApiContainer code={indexMd}/>

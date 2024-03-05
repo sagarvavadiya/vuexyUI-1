@@ -1,0 +1,729 @@
+import React from "react";
+import { Button } from "antd";
+
+class CopyContent extends React.Component {
+  render() {
+
+
+      const handleCopy = (content) => {
+      navigator.clipboard
+        .writeText(content)
+        .then(() => { 
+        })
+        .catch((error) => { 
+        });
+    };
+
+    const copyContent = (type) => {
+      switch (type) {
+        case "TodoContent": 
+          handleCopy(TodoContent);
+          break; 
+        case "tableContent": 
+          handleCopy(tableContent);
+          break;
+        case "paginationContent": 
+          handleCopy(paginationContent);
+          break;
+        case "autocomplateContent": 
+          handleCopy(autocomplateContent);
+          break;
+        case "filterContent": 
+          handleCopy(filterContent);
+          break;
+        case "checkBoxContent": 
+          handleCopy(checkBoxContent);
+          break;  
+        default:
+          break;
+      }
+    };
+
+    const buttonArray = [{title:"TodoContent"},{title:"tableContent"},{title:"paginationContent"},{title:"autocomplateContent"},{title:"filterContent"},{title:"checkBoxContent"},]
+    return (
+      <div>
+        {buttonArray.map((i)=>{return(<>
+           <Button type="primary" block   onClick={() => {
+              copyContent(i.title);
+            }}>
+          {i.title}
+        </Button>
+        </>)})}
+        
+       
+      </div>
+    );
+  }
+}
+
+export default CopyContent;
+
+
+const TodoContent = `function updateOrDeleteFromDatabase(database, newRecord, action) {
+    // Step 1: Check if the new record has all required keys
+    const requiredKeys = ['id', 'name', 'description', 'status', 'parentTask', 'createdAt'];
+    const missingKeys = requiredKeys.filter(key => !Object.keys(newRecord).includes(key));
+    if (missingKeys.length > 0) {
+        console.error('Missing keys in new record: %{missingKeys.join(', ')}');
+        return;
+    }
+    const parentId = newRecord.parentTask;
+    // Step 2: Perform action based on the provided action parameter
+    switch(action) {
+        case 'add':
+            // If parentTask is null, add as new record with an empty childTask array
+            if (newRecord.parentTask === null) {
+                database[newRecord.id] = {...newRecord, childTask: []};
+            } else {
+                // If parentTask is not null, find the corresponding parent record and append as a sub-record
+              
+                if (!database[parentId]) {
+                    console.error('Parent task with ID $%{parentId} not found.');
+                    // return;
+                }
+                if (!Array.isArray(database[parentId].childTask)) {
+                    console.error('Child task for parent task with ID $%{parentId} is not an array.');
+                    // return;
+                }
+                database[parentId].childTask.push(newRecord);
+            }
+            break;
+        case 'update':
+            // Find the record by ID and update it
+            if (newRecord.parentTask === null){
+            if (database[newRecord.id]) {
+                database[newRecord.id] = {...database[newRecord.id], ...newRecord};
+            } else {
+                console.error('Record with ID $%{newRecord.id} not found.');
+            }}else{
+              database[parentId].childTask[newRecord.id] = newRecord;
+            }
+            break;
+        case 'delete':
+            // Find the record by ID and delete it
+              if (newRecord.parentTask === null){
+            if (database[newRecord.id]) {
+                delete database[newRecord.id];
+            } else {
+                console.error('Record with ID $%{newRecord.id} not found.');
+            }
+            }else{
+              delete database[parentId].childTask[newRecord.id]; 
+            }
+            break;
+        default:
+            console.error('Invalid action: $%{action}');
+    }
+    return database
+}
+
+// Example usage:
+const database = {
+    1: {id: 1, name: 'Main Task 1', description: 'Description 1', status: 'Pending', parentTask: null, createdAt: '2024-03-05', childTask: []},
+    2: {id: 2, name: 'Main Task 2', description: 'Description 2', status: 'Completed', parentTask: null, createdAt: '2024-03-06', childTask: []}
+};
+
+const newRecord1 = {id: 1, name: 'Sub Task 1__', description: 'Description 1', status: 'Pending', parentTask: 1, createdAt: '2024-03-07'};
+const newRecord2 = {id: 4, name: 'Sub Task 2', description: 'Description 2', status: 'Pending', parentTask: 1, createdAt: '2024-03-08'};
+const newRecord3 = {id: 5, name: 'Sub Task 3', description: 'Description 3', status: 'Pending', parentTask: 2, createdAt: '2024-03-09'};
+
+
+// console.log(updateOrDeleteFromDatabase(database, newRecord1, "add")[1]);
+// console.log(updateOrDeleteFromDatabase(database, newRecord1, "update")[1]);
+console.log(updateOrDeleteFromDatabase(database, newRecord1, "delete")[1]);
+ `
+
+
+ 
+const tableContent = `import React, { useEffect, useState } from "react";
+import { MuiThemeProvider } from "@material-ui/core/styles";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@material-ui/core/TextField";
+const TableData = [
+  { fName: "Mark", lName: "Otto", handleBy: "@mdo" },
+  { fName: "Jacob", lName: "Thornton", handleBy: "@fat" },
+  { fName: "Larry", lName: "the Bird", handleBy: "@twitter" },
+];
+const ColumnHeader = [
+  { title: "First Name", key: "fName" },
+  { title: "Last Name", key: "lName" },
+  { title: "Handle By", key: "handleBy" },
+];
+const TablePage = () => {
+  const [tableData, setTableData] = useState(TableData);
+  const [filters, setFilters] = useState({
+    fName: "",
+    lName: "",
+    handleBy: "",
+  });
+
+  //   const setFilterData = (e) => {
+  //     setFilters({ ...filters, [e.target.name]: e.target.value });
+  //   };
+  const autoComplateFunction = (value, columnID, e) => {
+     console.log("go11 autoComplateFunctionvalue1",value,columnID,e )
+    if (!value) {
+      if (e.target.innerText) {
+        setFilters({ ...filters, [columnID]: e.target.innerText });
+        console.log("autoComplateFunction2", e.target.innerText);
+      } else {
+        setFilters({ ...filters, [columnID]: "" });
+        console.log("autoComplateFunction3", e.target.innerText);
+      }
+    } else {
+      if (typeof value == "number") {
+        console.log("autoComplateFunction4", e.target.innerText);
+        setFilters({ ...filters, [columnID]: e.target.innerText });
+      }else{
+         setFilters({ ...filters, [columnID]: value });
+      }
+    }
+  };
+  const onHandlekeydown = (value, columnId, e) => {
+    const autoSearchOption = extractKeyFromArray(tableData, [columnId]);
+    const isElementOfOption = autoSearchOption.includes(e.target.value);
+
+    if (e.key == "Enter") {
+        console.log("autoComplateFunctionEnter value",e);
+      if (isElementOfOption) {
+        console.log("go toFilter,",columnId,value);
+        autoComplateFunction(value,columnId,{target:{value:value}})
+      } else {
+        console.log("go to search",columnId,value);
+        autoComplateFunction(value,columnId,{target:{value:value}})
+      }
+
+    }
+  };
+  const IsAllChacked = tableData.every((i, index) => i?.isChacked === true);
+
+  const OnhandleCheckBox = ({ target }) => {
+    const { checked, id } = target;
+    if (id == "#") {
+      if (IsAllChacked) {
+        const tempData = tableData.map((i, index) => {
+          return { ...i, isChacked: false };
+        });
+        console.log("test1254 allChacked", IsAllChacked, tempData);
+        setTableData(tempData);
+      } else {
+        const tempData = tableData.map((i, index) => {
+          return { ...i, isChacked: true };
+        });
+        setTableData(tempData);
+      }
+    } else {
+      const tempData = tableData.map((i, index) => {
+        return index + 1 == id ? { ...i, isChacked: checked } : { ...i };
+      });
+      setTableData(tempData);
+    }
+  };
+
+
+  useEffect(() => {
+    setTableData([]);
+    let fnameFilterWord = filters?.fName.length > 0 ? filters?.fName : "";
+    let lnameFilterWord = filters?.lName.length > 0 ? filters?.lName : "";
+    let handleByFilterWord =
+      filters?.handleBy.length > 0 ? filters?.handleBy : "";
+
+    let filterKeyWords = [
+      { fName: fnameFilterWord },
+      { lName: lnameFilterWord },
+      { handleBy: handleByFilterWord },
+    ];
+
+    function filterObjectsByKeywords(objectArray, filterKeywords) {
+      console.log(objectArray, filterKeywords);
+      return objectArray.filter((object) => {
+        for (let filterObj of filterKeywords) {
+          const field = Object.keys(filterObj)[0];
+          const keyword = filterObj[field];
+
+          if (
+            !String(object[field]).toLowerCase().includes(keyword.toLowerCase())
+          ) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    // Filter objects based on keywords
+    const filteredObjects = filterObjectsByKeywords(TableData, filterKeyWords);
+
+    // Output the filtered objects
+    setTableData(filteredObjects);
+  }, [filters]);
+
+  useEffect(() => {
+    console.log("tableData", tableData);
+    console.log(
+      "tableData.every ",
+      tableData.some((i, index) => i?.isChacked === true)
+    );
+  }, [tableData]);
+  return (
+    <>
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">
+              <div>
+                <input
+                  type="checkbox"
+                  checked={IsAllChacked}
+                  name="all"
+                  id="#"
+                  onChange={OnhandleCheckBox}
+                />
+              </div>
+            </th>
+            {ColumnHeader.map((i, index) => {
+              return (
+                <>
+                  <th scope="col">
+                    <div>
+                      <div>{i.title}</div>
+                      <div>
+                        <MuiThemeProvider>
+                          <Autocomplete
+                            style={{ width: "70%" }}
+                            options={extractKeyFromArray(tableData, [i.key])}
+                            value={""}
+                            //   onDoubleClick={() =>
+                            //     setFilters({ ...filters, [column.id]: "" })
+                            //   }
+
+                            freeSolo
+                            onChange={(e) =>
+                              autoComplateFunction(e.target.value, i.key, e)
+                            }
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder="Search..."
+                                //   onChange={setFilterData}
+                                name={i.key}
+                                variant="filled"
+                                size="small"
+                                //   value={""}
+                                onKeyDown={(e) => {
+                                  onHandlekeydown(e.target.value, i.key, e);
+                                //   console.log("autoComplateFunction54",e.target.value, i.key,)
+                                }}
+
+                                InputLabelProps={{
+                                  shrink: false,
+                                  focused: false,
+                                }}
+                              />
+                            )}
+                          />
+                        </MuiThemeProvider>
+                      </div>
+                    </div>
+                  </th>
+                </>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {tableData.map((i, index) => {
+            return (
+              <>
+                <tr key={index + 1}>
+                  <th scope="row">
+                    <div>
+                      <input
+                        checked={i.isChacked}
+                        type="checkbox"
+                        name={"record$&{index + 1}"}
+                        id={index + 1}
+                        onChange={OnhandleCheckBox}
+                      />
+                    </div>
+                  </th>
+                  <td>{i.fName}</td>
+                  <td>{i.lName}</td>
+                  <td>{i.handleBy}</td>
+                </tr>
+              </>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+};
+
+export default TablePage;
+
+function extractKeyFromArray(arr, key) {
+  return arr.map((item) => item[key]);
+}
+`;
+
+const paginationContent = `.pageSpotBox{
+    display: flex;
+    width: 25rem;
+    justify-content: space-around;
+}
+
+.displayNone{
+    display: none;
+}
+
+.squre{
+    -webkit-text-security: square;
+}
+
+.test{
+    color: red;
+}
+
+.pageElement{
+    font-size: 2rem;
+}
+
+.PageBox{
+    height: 40vw;
+}
+.paginationDiv{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+.pointer{
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+export const pageData = [
+  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  "Sed ac dui aliquam, efficitur sapien ut, consectetur nunc.",
+  "Integer euismod purus vel libero vehicula congue.",
+  "Vivamus ultrices quam eget dui eleifend, eu placerat tellus suscipit.",
+  "Praesent ut felis ac mi congue ultrices.",
+  "Fusce dignissim turpis eu ante fermentum cursus.",
+  "Donec non sem non nisl tristique hendrerit.",
+  "Nullam volutpat magna vitae nibh feugiat, id volutpat sapien ullamcorper.",
+  "Cras tincidunt nunc id ipsum mattis, eget interdum mi commodo.",
+  "Vestibulum in quam nec orci aliquet pellentesque.",
+  "Maecenas consectetur velit nec odio commodo, et volutpat mauris lobortis.",
+  "Phasellus vitae risus sed lorem elementum tincidunt.",
+  "Ut non sapien malesuada, consequat nisi vitae, luctus sapien.",
+  "Aenean vitae nunc dapibus, maximus nunc at, efficitur lacus.",
+  "Quisque luctus elit at erat efficitur fringilla.",
+  "In tincidunt leo non volutpat mattis.",
+  "Morbi bibendum quam in enim varius ullamcorper.",
+  "Vivamus pharetra felis et tincidunt vehicula.",
+  "Suspendisse eget lorem vel nisi commodo bibendum.",
+  "Pellentesque eleifend dui a ultrices congue.",
+  "Nam et urna a ipsum efficitur dapibus.",
+  "Curabitur fringilla risus sit amet justo consequat eleifend.",
+  "Proin auctor enim sit amet turpis hendrerit iaculis.",
+  "Aliquam rhoncus augue ac purus cursus, nec tristique eros consectetur.",
+  "Vivamus a metus sed dolor consectetur cursus.",
+  "Nulla sollicitudin odio vitae metus interdum consectetur.",
+  "Fusce tristique ex vitae risus mattis, ut consectetur ligula tempus.",
+  "Nunc et purus tristique, faucibus ipsum vel, feugiat ex.",
+  "Sed fermentum lectus sed consectetur dignissim.",
+  "Etiam sed urna sed ipsum dapibus sagittis.",
+  "Phasellus vulputate libero sed ex tincidunt feugiat.",
+];
+
+
+
+import React, { useState } from "react";
+import "./pagination.css";
+import { pageData as data } from "./pageData";
+const itemsPerPage = 2; // Number of items to display per page
+
+const Pagination = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Calculate the index range of items to display on the current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Change the current page
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Generate the page numbers
+  const pageNumbers = [];
+  for (let i = 1; i <= Math.ceil(data.length / itemsPerPage); i++) {
+    pageNumbers.push(i);
+  }
+
+  let halfLength = (pageNumbers.length / 2) | 0;
+  const dotElement =
+    pageNumbers.indexOf(currentPage) <= halfLength
+      ? currentPage + 2
+      : currentPage - 2;
+  return (
+    <div>
+      {/* Render the current items */}
+      <div className="PageBox">
+        <ul>
+          {currentItems.map((item) => (
+            <li className="pageElement" key={item.id}>
+              {item}
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="paginationDiv">
+        <div className="pageSpotBox">
+          <div>
+            <span className="pointer" onClick={() => setCurrentPage(1)}>
+              ⏪
+            </span>
+            <span
+              className="pointer"
+              onClick={() =>
+                setCurrentPage(
+                  currentPage === 1 ? currentPage : currentPage - 1
+                )
+              }
+            >
+              ◀️
+            </span>
+          </div>
+
+          {pageNumbers.map((pageNumber) => (
+            <div
+              key={pageNumber}
+              onClick={() => handlePageChange(pageNumber)}
+              style={{
+                fontWeight: pageNumber === currentPage ? "bold" : "normal",
+                cursor: "pointer",
+              }}
+              className={"$&{
+                [
+                  1,
+                  currentPage + 2,
+                  currentPage - 2,
+                  pageNumbers[pageNumbers.length - 1],
+                  currentPage,
+                  currentPage - 1,
+                  currentPage + 1
+                ].includes(pageNumber)
+                  ? ''
+                  : 'displayNone'
+              } "}
+            >
+              {[currentPage + 2, currentPage - 2].includes(pageNumber) ? (
+                <>
+                  {[1, pageNumbers[pageNumbers.length - 1]].includes(
+                    pageNumber
+                  ) ? (
+                    pageNumber
+                  ) : (
+                    <div>o o o</div>
+                  )}
+                </>
+              ) : (
+                pageNumber
+              )}
+            </div>
+          ))}
+          <div>
+            <span
+              className="pointer"
+              onClick={() =>
+                setCurrentPage(
+                  currentPage === pageNumbers[pageNumbers.length - 1]
+                    ? pageNumbers[pageNumbers.length - 1]
+                    : currentPage + 1
+                )
+              }
+            >
+              ▶️
+            </span>
+            <span
+              className="pointer"
+              onClick={() =>
+                setCurrentPage(pageNumbers[pageNumbers.length - 1])
+              }
+            >
+              ⏩
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Pagination;
+`;
+
+const autocomplateContent = `
+
+import { MuiThemeProvider } from "@material-ui/core/styles";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+import TextField from "@material-ui/core/TextField";
+
+function extractKeyFromArray(arr, key) {
+  return arr.map((item) => item[key]);
+}
+
+const autoComplateFunction = (value, columnID, e) => {
+     console.log("go11 autoComplateFunctionvalue1",value,columnID,e )
+    if (!value) {
+      if (e.target.innerText) {
+        setFilters({ ...filters, [columnID]: e.target.innerText });
+        console.log("autoComplateFunction2", e.target.innerText);
+      } else {
+        setFilters({ ...filters, [columnID]: "" });
+        console.log("autoComplateFunction3", e.target.innerText);
+      }
+    } else {
+      if (typeof value == "number") {
+        console.log("autoComplateFunction4", e.target.innerText);
+        setFilters({ ...filters, [columnID]: e.target.innerText });
+      }else{
+         setFilters({ ...filters, [columnID]: value });
+      }
+    }
+  };
+  const onHandlekeydown = (value, columnId, e) => {
+    const autoSearchOption = extractKeyFromArray(tableData, [columnId]);
+    const isElementOfOption = autoSearchOption.includes(e.target.value);
+
+    if (e.key == "Enter") {
+        console.log("autoComplateFunctionEnter value",e);
+      if (isElementOfOption) {
+        console.log("go toFilter,",columnId,value);
+        autoComplateFunction(value,columnId,{target:{value:value}})
+      } else {
+        console.log("go to search",columnId,value);
+        autoComplateFunction(value,columnId,{target:{value:value}})
+      }
+
+    }
+  };
+
+   <div>
+                        <MuiThemeProvider>
+                          <Autocomplete
+                            style={{ width: "70%" }}
+                            options={extractKeyFromArray(tableData, [i.key])}
+                            value={""}
+                            //   onDoubleClick={() =>
+                            //     setFilters({ ...filters, [column.id]: "" })
+                            //   }
+
+                            freeSolo
+                            onChange={(e) =>
+                              autoComplateFunction(e.target.value, i.key, e)
+                            }
+                            //    onKeyDown={(e)=>{onHandlekeydown(e.target.value,i.key,e)}}
+                            renderInput={(params) => (
+                              <TextField
+                                {...params}
+                                placeholder="Search..."
+                                //   onChange={setFilterData}
+                                name={i.key}
+                                variant="filled"
+                                size="small"
+                                //   value={""}
+                                onKeyDown={(e) => {
+                                  onHandlekeydown(e.target.value, i.key, e);
+                                //   console.log("autoComplateFunction54",e.target.value, i.key,)
+                                }}
+
+                                InputLabelProps={{
+                                  shrink: false,
+                                  focused: false,
+                                }}
+                              />
+                            )}
+                          />
+                        </MuiThemeProvider>
+                      </div>
+  `;
+
+const filterContent = `
+  const [tableData, setTableData] = useState(TableData);
+const [filters, setFilters] = useState({
+    fName: "",
+    lName: "",
+    handleBy: "",
+  });
+  useEffect(() => {
+    setTableData([]);
+    let fnameFilterWord = filters?.fName.length > 0 ? filters?.fName : "";
+    let lnameFilterWord = filters?.lName.length > 0 ? filters?.lName : "";
+    let handleByFilterWord =
+      filters?.handleBy.length > 0 ? filters?.handleBy : "";
+
+    let filterKeyWords = [
+      { fName: fnameFilterWord },
+      { lName: lnameFilterWord },
+      { handleBy: handleByFilterWord },
+    ];
+
+    function filterObjectsByKeywords(objectArray, filterKeywords) {
+      console.log(objectArray, filterKeywords);
+      return objectArray.filter((object) => {
+        for (let filterObj of filterKeywords) {
+          const field = Object.keys(filterObj)[0];
+          const keyword = filterObj[field];
+
+          if (
+            !String(object[field]).toLowerCase().includes(keyword.toLowerCase())
+          ) {
+            return false;
+          }
+        }
+        return true;
+      });
+    }
+
+    // Filter objects based on keywords
+    const filteredObjects = filterObjectsByKeywords(TableData, filterKeyWords);
+
+    // Output the filtered objects
+    setTableData(filteredObjects);
+  }, [filters]);`;
+
+const checkBoxContent = `
+  const IsAllChacked = tableData.every((i, index) => i?.isChacked === true);
+const OnhandleCheckBox = ({ target }) => {
+    const { checked, id } = target;
+    if (id == "#") {
+      if (IsAllChacked) {
+        const tempData = tableData.map((i, index) => {
+          return { ...i, isChacked: false };
+        });
+        console.log("test1254 allChacked", IsAllChacked, tempData);
+        setTableData(tempData);
+      } else {
+        const tempData = tableData.map((i, index) => {
+          return { ...i, isChacked: true };
+        });
+        setTableData(tempData);
+      }
+    } else {
+      const tempData = tableData.map((i, index) => {
+        return index + 1 == id ? { ...i, isChacked: checked } : { ...i };
+      });
+      setTableData(tempData);
+    }
+  };`;
