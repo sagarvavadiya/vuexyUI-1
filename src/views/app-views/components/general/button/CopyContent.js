@@ -40,6 +40,9 @@ class CopyContent extends React.Component {
         case "EditObject":
           handleCopy(EditObject);
           break;
+        case "Smartbutton":
+          handleCopy(crudApp);
+          break;
         default:
           break;
       }
@@ -55,6 +58,7 @@ class CopyContent extends React.Component {
       { title: "ReduxData" },
       { title: "SearchFilter" },
       { title: "EditObject" },
+      { title: "Smartbutton" },
     ];
     return (
       <div>
@@ -1322,4 +1326,190 @@ const updateValues = {
 
 const updatedObject = updateNestedObjectByRef(rootObject, updateValues);
 console.log(updatedObject["a"]["child2"]);
+`;
+
+const crudApp = `
+
+import React, { useEffect, useState } from "react";
+import DataTable from "./table";
+import { API_END_POINT } from "../../Helper/constant";
+import {
+  GET_API,
+  POST_API,
+  PUT_API,
+  DELETE_API,
+} from "../../Helper/functionHelper";
+
+const ManageData = () => {
+  const [data, setData] = useState([]);
+  const GetData = () => {
+    GET_API(API_END_POINT.get_employees)
+      .then((res) => {
+        setData(res.data.data);
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  };
+  const AddData = (body) => {
+    POST_API(API_END_POINT.get_employees, body)
+      .then((res) => {
+        // setData(res.data.data);
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  };
+  const UpdateData = (id) => {
+    const sData = {
+      email: "lllllllllllll",
+      first_name: "Janet",
+      last_name: "Weaver",
+      avatar: "https://reqres.in/img/faces/2-image.jpg",
+    };
+    PUT_API({API_END_POINTget_employees}/{id}, sData)
+      .then((res) => {
+        GetData();
+        // setData(res.data.data);
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  };
+  const DeletData = (id) => {
+    DELETE_API(API_END_POINTl.get_employees}/{id})
+      .then((res) => {
+        GetData();
+        // setData(res.data.data);
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  };
+  useEffect(() => {
+    GetData();
+  }, []);
+
+  const allProps = {
+    data: data,
+    AddData: AddData,
+    UpdateData: UpdateData,
+    DeletData: DeletData,
+  };
+  return (
+    <div>
+      <DataTable allProps={allProps} />
+    </div>
+  );
+};
+
+export default ManageData;
+
+
+//////////////////////////////////////////////Table //////////////////////////////////
+import React from "react";
+
+const DataTable = ({ allProps }) => {
+  const { data, AddData, UpdateData, DeletData } = allProps;
+
+  const tableColumn = [
+    { title: "Id", field: "id" },
+    { title: "Email", field: "email" },
+    { title: "First Name", field: "first_name" },
+    { title: "Last Name", field: "last_name" },
+    { title: "Avatar", field: "avatar" },
+    { title: "Action", field: "action" },
+  ];
+  const test = () => {
+    console.log(data);
+  };
+  return (
+    <div className="TableComponent">
+      <div className="container">
+        <h1 onClick={test}>Responsive Table</h1>
+        <table className="rwd-table">
+          <tbody>
+            <tr>
+              {tableColumn.map((i, index) => {
+                return (
+                  <>
+                    <th key={ }>{i.title}</th>
+                  </>
+                );
+              })}
+            </tr>
+            {data.map((i, index) => {
+              return (
+                <>
+                  <tr key={ }>
+                    <td> {i.id}</td>
+                    <td>{i.email}</td>
+                    <td>{i.first_name}</td>
+                    <td>{i.last_name}</td>
+                    <td>{i.avatar}</td>
+                    <td>
+                      <div>
+                        <button
+                          className="btn btn-success"
+                          onClick={() => UpdateData(i.id)}
+                        >
+                          Edit
+                        </button>
+                        &nbsp;
+                        <button
+                          className="btn btn-danger"
+                          onClick={() => DeletData(i.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+        <h3>Resize Me</h3>
+      </div>
+    </div>
+  );
+};
+
+export default DataTable;
+//////////////////////////////////////////////helper/////////////////////////////////////////////////////
+import axios from "axios";
+
+export const POST_API = (url, body) => {
+  return new Promise((Response, Reject) => {
+    axios
+      .post(url, body)
+      .then((res) => Response(res))
+      .catch((err) => Reject(err));
+  });
+};
+
+export const GET_API = (url) => {
+  return new Promise((Response, Reject) => {
+    axios
+      .get(url)
+      .then((res) => Response(res))
+      .catch((err) => Reject(err));
+  });
+};
+
+export const PUT_API = (url, body) => {
+  return new Promise((Response, Reject) => {
+    axios
+      .put(url, body)
+      .then((res) => Response(res))
+      .catch((err) => Reject(err));
+  });
+};
+
+export const DELETE_API = (url) => {
+  return new Promise((Response, Reject) => {
+    axios
+      .delete(url)
+      .then((res) => Response(res))
+      .catch((err) => Reject(err));
+  });
+};
+
 `;
