@@ -3,65 +3,82 @@ import { Button } from "antd";
 
 class CopyContent extends React.Component {
   render() {
-
-
-      const handleCopy = (content) => {
+    const handleCopy = (content) => {
       navigator.clipboard
         .writeText(content)
-        .then(() => { 
-        })
-        .catch((error) => { 
-        });
+        .then(() => {})
+        .catch((error) => {});
     };
 
     const copyContent = (type) => {
       switch (type) {
-        case "TodoContent": 
+        case "TodoContent":
           handleCopy(TodoContent);
-          break; 
-        case "tableContent": 
+          break;
+        case "tableContent":
           handleCopy(tableContent);
           break;
-        case "paginationContent": 
+        case "paginationContent":
           handleCopy(paginationContent);
           break;
-        case "autocomplateContent": 
+        case "autocomplateContent":
           handleCopy(autocomplateContent);
           break;
-        case "filterContent": 
+        case "filterContent":
           handleCopy(filterContent);
           break;
-        case "checkBoxContent": 
+        case "checkBoxContent":
           handleCopy(checkBoxContent);
-          break;  
-                 
-        case "ReduxData": 
+          break;
+
+        case "ReduxData":
           handleCopy(ReduxData);
-          break;  
+          break;
+        case "SearchFilter":
+          handleCopy(SearchFilter);
+          break;
+        case "EditObject":
+          handleCopy(EditObject);
+          break;
         default:
           break;
       }
     };
 
-    const buttonArray = [{title:"TodoContent"},{title:"tableContent"},{title:"paginationContent"},{title:"autocomplateContent"},{title:"filterContent"},{title:"checkBoxContent"},{title:"ReduxData"}]
+    const buttonArray = [
+      { title: "TodoContent" },
+      { title: "tableContent" },
+      { title: "paginationContent" },
+      { title: "autocomplateContent" },
+      { title: "filterContent" },
+      { title: "checkBoxContent" },
+      { title: "ReduxData" },
+      { title: "SearchFilter" },
+      { title: "EditObject" },
+    ];
     return (
       <div>
-        {buttonArray.map((i)=>{return(<>
-           <Button type="primary" block   onClick={() => {
-              copyContent(i.title);
-            }}>
-          {i.title}
-        </Button>
-        </>)})}
-        
-       
+        {buttonArray.map((i) => {
+          return (
+            <>
+              <Button
+                type="primary"
+                block
+                onClick={() => {
+                  copyContent(i.title);
+                }}
+              >
+                {i.title}
+              </Button>
+            </>
+          );
+        })}
       </div>
     );
   }
 }
 
 export default CopyContent;
-
 
 const TodoContent = `function updateOrDeleteFromDatabase(database, newRecord, action) {
     // Step 1: Check if the new record has all required keys
@@ -135,10 +152,8 @@ const newRecord3 = {id: 5, name: 'Sub Task 3', description: 'Description 3', sta
 // console.log(updateOrDeleteFromDatabase(database, newRecord1, "add")[1]);
 // console.log(updateOrDeleteFromDatabase(database, newRecord1, "update")[1]);
 console.log(updateOrDeleteFromDatabase(database, newRecord1, "delete")[1]);
- `
+ `;
 
-
- 
 const tableContent = `import React, { useEffect, useState } from "react";
 import { MuiThemeProvider } from "@material-ui/core/styles";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -732,8 +747,7 @@ const OnhandleCheckBox = ({ target }) => {
     }
   };`;
 
-  
-const ReduxData  =`//App.js////////////////////////////////////////////////////////////////////////////
+const ReduxData = `//App.js////////////////////////////////////////////////////////////////////////////
  "redux-thunk": "^3.1.0",
    "react-redux": "^9.1.0",
      "@reduxjs/toolkit": "^2.2.1",
@@ -838,5 +852,471 @@ export default store;
 
  ;
 
-`
+`;
 
+const SearchFilter = `
+import * as React from "react";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete"; 
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { StoreSearchFilterValue } from "../../reduxStore/Action/bookApiAction";
+
+function TransformData(array) {
+  let transformedArray = [];
+
+  array.forEach((obj) => {
+    for (let key in obj) {
+      let value = obj[key];
+      let lable = obj[key];
+
+      
+      transformedArray.push({ label: lable, value: value });
+    }
+  });
+
+  // Remove duplicates from the array
+  transformedArray = transformedArray.filter(
+    (obj, index, self) =>
+      index ===
+      self.findIndex((o) => o.label === obj.label && o.value === obj.value)
+  );
+
+  return transformedArray;
+}
+const demoData = [
+  {
+    _id: "65e15cb07628745bacc07367",
+    name: "test",
+    author: "teradasda",
+    currentAvailability: false,
+    createdAt: "2024-03-01T04:42:24.264Z",
+    updatedAt: "2024-03-11T21:39:52.081Z",
+  },
+  {
+    _id: "65e07055ad4db737345399b4",
+    name: "dadadddd",
+    author: "dadada",
+    currentAvailability: true,
+    createdAt: "2024-02-29T11:53:57.063Z",
+    updatedAt: "2024-03-10T16:01:06.192Z",
+  },
+  {
+    _id: "65e06fefad4db737345399ae",
+    name: "ljkl",
+    author: "tjko",
+    currentAvailability: true,
+    createdAt: "2024-02-29T11:52:15.522Z",
+    updatedAt: "2024-03-01T05:01:14.284Z",
+  },
+];
+
+export default function AutoComplatete() {
+  const dispatch = useDispatch();
+  const BookListState = useSelector((state) => state.book);
+  const [bookData, setBookData] = React.useState([]);
+  const onHandleClick = (e) => { 
+    dispatch(StoreSearchFilterValue({ type: "search", data: e.target.value }));
+  };
+
+  const onHandleChange = (e) => {
+    if (!e.target.value) {
+      dispatch(StoreSearchFilterValue({ type: "search", data: "" }));
+    }
+  };
+
+  const onHandleKey = (e) => { 
+    if (e.key === "Enter") { 
+      dispatch(
+        StoreSearchFilterValue({
+          type: "search",
+          data: e.target.value.trim(),
+        })
+      );
+    }
+  };
+
+  React.useEffect(() => {
+    console.log("React.useEffect", BookListState);
+    const bookList = BookListState?.BookResponse?.data?.data ?? [];
+    TransformData(bookList);
+    setBookData(TransformData(demoData));
+  }, [BookListState]);
+
+  return (
+    <Autocomplete
+      disablePortal
+      id="combo-box-demo"
+      options={bookData}
+      sx={{ width: 300 }}
+      renderInput={(params) => <TextField {...params} label="Search" />}
+      onChange={onHandleChange}
+      onKeyDown={onHandleKey}
+      onSelect={onHandleClick}
+    />
+  );
+}
+
+
+//////////////////////////////////////////////////// FILTER //////////////////////////////////////////////////////
+
+
+import * as React from "react";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
+import FormControl from "@mui/material/FormControl";
+import ListItemText from "@mui/material/ListItemText";
+import Select from "@mui/material/Select";
+import Checkbox from "@mui/material/Checkbox";
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
+import Modal from "@mui/material/Modal";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { StoreSearchFilterValue } from "../../../reduxStore/Action/bookApiAction";
+
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+      width: 250,
+    },
+  },
+};
+
+function MultipleSelectCheckmarks({ allPropsData }) {
+  const [personName, setPersonName] = React.useState([]);
+  const { filterData, setFilterData, data } = allPropsData;
+  const { title, valueList } = data;
+
+  const handleChange = (event) => {
+    const {
+      target: { value, name },
+    } = event;
+    const dataForStore = typeof value === "string" ? value.split(",") : value;
+    setPersonName(dataForStore);
+    setFilterData({ ...filterData, [title]: dataForStore });
+  };
+
+  const checkBoxValue = (name) => {
+    const valueArray = filterData[title] || [];
+    return valueArray.indexOf(name);
+  };
+
+  const ReturnName = (value) => {
+    const newValue = value;
+
+    if (typeof newValue == "boolean") {
+      if (newValue) {
+        return "Available";
+      } else {
+        return "Unavailable";
+      }
+    } else {
+      return newValue;
+    }
+  };
+  return (
+    <div>
+      <FormControl sx={{ m: 1, width: 300 }}>
+        <InputLabel id="demo-multiple-checkbox-label">
+          {$title.toUpperCase()}
+        </InputLabel>
+        <Select
+          labelId="demo-multiple-checkbox-label"
+          id="demo-multiple-checkbox"
+          name={title}
+          multiple
+          value={personName}
+          onChange={handleChange}
+          input={<OutlinedInput label="Tag" />}
+          renderValue={(selected) => selected.join(", ")}
+          MenuProps={MenuProps}
+        >
+          {valueList?.map((name) => (
+            <MenuItem key={name} value={name}>
+              {/* <Checkbox checked={personName.indexOf(name) > -1} /> */}
+              <Checkbox checked={checkBoxValue(name) > -1} />
+              <ListItemText primary={ReturnName(name)} />
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </div>
+  );
+}
+function RemoveDuplicates(array) {
+  return Array.from(new Set(array));
+}
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
+
+const demoData = [
+  {
+    _id: "65e15cb07628745bacc07367",
+    name: "test",
+    author: "teradasda",
+    currentAvailability: false,
+    createdAt: "2024-03-01T04:42:24.264Z",
+    updatedAt: "2024-03-11T21:39:52.081Z",
+  },
+  {
+    _id: "65e07055ad4db737345399b4",
+    name: "dadadddd",
+    author: "dadada",
+    currentAvailability: true,
+    createdAt: "2024-02-29T11:53:57.063Z",
+    updatedAt: "2024-03-10T16:01:06.192Z",
+  },
+  {
+    _id: "65e06fefad4db737345399ae",
+    name: "ljkl",
+    author: "tjko",
+    currentAvailability: true,
+    createdAt: "2024-02-29T11:52:15.522Z",
+    updatedAt: "2024-03-01T05:01:14.284Z",
+  },
+];
+
+function CollectValuesByKey(array) {
+  let result = [];
+
+  // Iterate over each object in the array
+  array.forEach((obj) => {
+    // Iterate over each key in the object
+    Object.keys(obj).forEach((key) => {
+      // Check if the title already exists in the result array
+      let existingTitleIndex = result.findIndex((item) => item.title === key);
+      if (existingTitleIndex === -1) {
+        // If the title doesn't exist, add it with the current value as an array
+        result.push({ title: key, valueList: [obj[key]] });
+      } else {
+        // If the title already exists, push the current value to its array
+        result[existingTitleIndex].valueList.push(obj[key]);
+      }
+    });
+  });
+
+  return result;
+}
+
+export default function FilterComponent() {
+  const dispatch = useDispatch();
+  const [open, setOpen] = React.useState(false);
+  const [bookData, setBookData] = React.useState([]);
+  const [filterData, setFilterData] = React.useState({});
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+  const BookListState = useSelector((state) => state.book);
+  const allPropsData = {
+    filterData: filterData,
+    setFilterData: setFilterData,
+  };
+
+  const onHandleFilter = () => {
+    dispatch(StoreSearchFilterValue({ type: "filter", data: filterData }));
+    handleClose();
+  };
+  React.useEffect(() => {
+    const OptionObject = CollectValuesByKey(demoData ?? []);
+    setBookData(OptionObject);
+  }, [BookListState]);
+
+  React.useEffect(() => {
+    console.log(filterData);
+  }, [open]);
+  return (
+    <div>
+      <ul className="cs_mp0">
+        <li className={"active"}>
+          <span onClick={handleOpen}>Filter</span>
+        </li>
+      </ul>
+
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box sx={style}>
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Filter
+          </Typography>
+          {bookData?.map((i, index) => {
+            return (
+              <>
+                <div key={index}>
+                  <MultipleSelectCheckmarks
+                    allPropsData={{
+                      ...allPropsData,
+                      data: {
+                        ...i,
+                        valueList: RemoveDuplicates(i?.valueList ?? []),
+                      },
+                    }}
+                  />
+                </div>
+              </>
+            );
+          })}
+          <div className="d-flex justify-content-end">
+            <button className="btn btn-success" onClick={onHandleFilter}>
+              Click For Filter
+            </button>
+          </div>
+        </Box>
+      </Modal>
+    </div>
+  );
+}
+////////////////////////////////////// Function To return filter data ///////////////////////////////////////
+
+const filteredData = FilterAndSearchData({
+      data: BookListState?.BookResponse?.data?.data ?? [],
+      filterObject: filterObject ?? {},
+      searchString: searchString,
+      priority: "filter", // or "search", depending on your preference
+    });
+    setBookList(filteredData);
+
+export function FilterAndSearchData({
+  data,
+  filterObject,
+  searchString,
+  priority,
+}) {
+  console.log(
+    "data125456",
+    data,
+    "filterObject",
+    filterObject,
+    "searchString",
+    searchString,
+    "priority",
+    priority
+  );
+  let filteredData = [...data];
+
+  // Apply filtering based on filterObject
+  if (priority.toLowerCase() === "filter") {
+    filteredData = filteredData.filter((obj) => {
+      for (let key in filterObject) {
+        if (!filterObject[key].includes(obj[key])) {
+          return false;
+        }
+      }
+      return true;
+    });
+
+    // Apply searching based on searchString
+    if (searchString.trim() !== "") {
+      filteredData = filteredData.filter((obj) => {
+        for (let key in obj) {
+          if (
+            typeof obj[key] === "string" &&
+            obj[key].toLowerCase().includes(searchString.toLowerCase())
+          ) {
+            return true;
+          }
+        }
+        return false;
+      });
+    }
+  } else if (priority.toLowerCase() === "search") {
+    // Apply searching based on searchString
+    if (searchString.trim() !== "") {
+      filteredData = filteredData.filter((obj) => {
+        for (let key in obj) {
+          if (
+            typeof obj[key] === "string" &&
+            obj[key].toLowerCase().includes(searchString.toLowerCase())
+          ) {
+            return true;
+          }
+        }
+        return false;
+      });
+    }
+
+    // Apply filtering based on filterObject
+    filteredData = filteredData.filter((obj) => {
+      for (let key in filterObject) {
+        if (!filterObject[key].includes(obj[key])) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  return filteredData;
+}
+
+
+
+`;
+
+const EditObject = `function updateNestedObjectByRef(rootObject, updateValues) {
+  // Helper function to recursively update nested objects
+  function updateObjectByRef(obj, ref, value) {
+    const keys = ref.split("/");
+    let currentObj = obj;
+    for (let i = 0; i < keys.length - 1; i++) {
+      if (!currentObj[keys[i]]) {
+        // If the intermediate key does not exist, create an empty object
+        currentObj[keys[i]] = {};
+      }
+      currentObj = currentObj[keys[i]];
+    }
+    currentObj[keys[keys.length - 1]] = value;
+  }
+
+  // Iterate over the update values and update the root object
+  for (let ref in updateValues) {
+    if (ref.includes("/")) {
+      // If the reference contains "/", update the nested object
+      updateObjectByRef(rootObject, ref, updateValues[ref]);
+    } else {
+      // Otherwise, update the root object directly
+      rootObject[ref] = updateValues[ref];
+    }
+  }
+
+  return rootObject;
+}
+
+// Example usage:
+const rootObject = {
+  a: {
+    child1: 10,
+    child2: {
+      grandchild1: 5,
+      grandchild2: { nestedchild1: { grandchild_c1: 5 } },
+    },
+  },
+  b: 4,
+  c: { child_c1: 10, child_c2: { grandchild_c1: 5 } },
+};
+
+const updateValues = {
+  b: 20,
+  "a/child2/grandchild2/nestedchild1/grandchild_c1": 5000,
+  "c/child_c1": 30,
+};
+
+const updatedObject = updateNestedObjectByRef(rootObject, updateValues);
+console.log(updatedObject["a"]["child2"]);
+`;
