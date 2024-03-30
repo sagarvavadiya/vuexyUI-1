@@ -855,6 +855,9 @@ export default store;
 `;
 
 const SearchFilter = `
+
+"@mui/material": "^5.15.12",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.17",
 import * as React from "react";
 import TextField from "@mui/material/TextField";
 import Autocomplete from "@mui/material/Autocomplete"; 
