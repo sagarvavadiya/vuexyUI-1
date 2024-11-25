@@ -1,47 +1,66 @@
-import React from "react";
-import { Button } from "antd";
+import React from 'react';
+import { Button } from 'antd';
+import {
+  ApiCall,
+  CRUD,
+  horizontalTree,
+  ReduxData,
+  Routing,
+  verticalTree,
+} from './Content';
 
 class CopyContent extends React.Component {
   render() {
-    const handleCopy = (content) => {
+    const handleCopy = content => {
       navigator.clipboard
         .writeText(content)
         .then(() => {})
-        .catch((error) => {});
+        .catch(error => {});
     };
 
-    const copyContent = (type) => {
+    const copyContent = type => {
       switch (type) {
-        case "TodoContent":
-          handleCopy(TodoContent);
+        case 'Rtr':
+          handleCopy(Routing);
           break;
-        case "tableContent":
-          handleCopy(tableContent);
+        case 'ApiC':
+          handleCopy(ApiCall);
           break;
-        case "paginationContent":
+        case 'paginationContent':
           handleCopy(paginationContent);
           break;
-        case "autocomplateContent":
-          handleCopy(autocomplateContent);
+        case 'crd':
+          handleCopy(CRUD);
           break;
-        case "filterContent":
+        case 'filterContent':
           handleCopy(filterContent);
           break;
-        case "checkBoxContent":
+        case 'checkBoxContent':
           handleCopy(checkBoxContent);
           break;
 
-        case "ReduxData":
+        case 'RDX data':
           handleCopy(ReduxData);
           break;
-        case "SearchFilter":
+        case 'SearchFilter':
           handleCopy(SearchFilter);
           break;
-        case "EditObject":
-          handleCopy(EditObject);
+        case 'vtree':
+          handleCopy(verticalTree);
           break;
-        case "Smartbutton":
-          handleCopy(crudApp);
+        case 'htree':
+          handleCopy(horizontalTree);
+          break;
+        case 'Smartbutton':
+          handleCopy(
+            Routing +
+              ApiCall +
+              CRUD +
+              checkBoxContent +
+              ReduxData +
+              verticalTree +
+              horizontalTree,
+          );
           break;
         default:
           break;
@@ -49,24 +68,25 @@ class CopyContent extends React.Component {
     };
 
     const buttonArray = [
-      { title: "TodoContent" },
-      { title: "tableContent" },
-      { title: "paginationContent" },
-      { title: "autocomplateContent" },
-      { title: "filterContent" },
-      { title: "checkBoxContent" },
-      { title: "ReduxData" },
-      { title: "SearchFilter" },
-      { title: "EditObject" },
-      { title: "Smartbutton" },
+      { title: 'RDX data' },
+      { title: 'Rtr' },
+      { title: 'ApiC' },
+      { title: 'crd' },
+      { title: 'vtree' },
+      { title: 'htree' },
+      { title: 'paginationContent' },
+      { title: 'filterContent' },
+      { title: 'checkBoxContent' },
+      { title: 'SearchFilter' },
+      { title: 'Smartbutton' },
     ];
     return (
       <div>
-        {buttonArray.map((i) => {
+        {buttonArray.map(i => {
           return (
             <>
               <Button
-                type="primary"
+                type='primary'
                 block
                 onClick={() => {
                   copyContent(i.title);
@@ -101,7 +121,7 @@ const TodoContent = `function updateOrDeleteFromDatabase(database, newRecord, ac
                 database[newRecord.id] = {...newRecord, childTask: []};
             } else {
                 // If parentTask is not null, find the corresponding parent record and append as a sub-record
-              
+
                 if (!database[parentId]) {
                     console.error('Parent task with ID $%{parentId} not found.');
                     // return;
@@ -133,7 +153,7 @@ const TodoContent = `function updateOrDeleteFromDatabase(database, newRecord, ac
                 console.error('Record with ID $%{newRecord.id} not found.');
             }
             }else{
-              delete database[parentId].childTask[newRecord.id]; 
+              delete database[parentId].childTask[newRecord.id];
             }
             break;
         default:
@@ -751,120 +771,13 @@ const OnhandleCheckBox = ({ target }) => {
     }
   };`;
 
-const ReduxData = `//App.js////////////////////////////////////////////////////////////////////////////
- "redux-thunk": "^3.1.0",
-   "react-redux": "^9.1.0",
-     "@reduxjs/toolkit": "^2.2.1",
-import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { increment, decrement } from "./counterSlice";
-import { ApiCall } from "./action";
-import TablePage from "./CRUD/Table";
-
-function App() {
-  const count = useSelector((state) => state.counter.value);
-  const dispatch = useDispatch();
-
-  return (
-    <div>
-      <h1>Redux Counter App</h1>
-      <div>
-        <button onClick={() => dispatch(ApiCall())}>Increment</button>
-        <span>{count}</span>
-        <button onClick={() => dispatch(decrement())}>Decrement</button>
-
-        <TablePage/>
-      </div>
-    </div>
-  );
-}
-
-export default App;
- 
-
-
-//Slice///////////////////////////////////////////////////////////////////////////////////
-
-import { createSlice } from '@reduxjs/toolkit';
-import { ApiCall } from './action';
-
-export const counterSlice = createSlice({
-  name: 'counter',
-  initialState: {
-    value: 0,
-  },
-  reducers: {
-    increment: (state,action) => {
-      state.value=action.payload
-      console.log("action",action)
-    },
-    decrement: state => {
-      state.value -= 1;
-    },
-  },
-});
-
-export const { increment, decrement } = counterSlice.actions;
-
-export default counterSlice.reducer;
-
-
-
-//Action////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-import { increment, decrement } from "./counterSlice";
-export const ApiCall = (params)=>(dispatch)=>{
-const headers = new Headers({
-  "Content-Type": "application/json",
-  "x-api-key": "DEMO-API-KEY"
-});
-// return "$&{"result"}"
-var requestOptions = {
-  method: 'GET',
-  headers: headers,
-  redirect: 'follow'
-};
-
-   fetch("https://api.thedogapi.com/v1/images/search?size=med&mime_types=jpg&format=json&has_breeds=true&order=RANDOM&page=0&limit=1", requestOptions)
-//   .then(response => response.text())
-  .then(result =>result.json())
-  .then(response =>{ console.log("result",response[0].height); dispatch(increment(response[0].height))})
-  .catch(error => console.log('error', error)); 
-}
-
-
-//Reducer/////////////////////////////////////////////////////////////////////////////////////////////
-// store.js
-import { createStore, applyMiddleware } from 'redux';
-import {thunk} from 'redux-thunk'; 
-import { combineReducers } from 'redux'; 
-import counterReducer from './counterSlice';
-
-const rootReducer = combineReducers({
- 
-    counter: counterReducer,
-  
-}); 
-
-const store = createStore(
-  rootReducer, // Combine all your reducers here
-  applyMiddleware(thunk)
-);
-
-export default store;
-
-// reducers/index.js
-
- ;
-
-`;
-
 const SearchFilter = `
 
 "@mui/material": "^5.15.12",
     "@mui/styled-engine-sc": "^6.0.0-alpha.17",
 import * as React from "react";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete"; 
+import Autocomplete from "@mui/material/Autocomplete";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { StoreSearchFilterValue } from "../../reduxStore/Action/bookApiAction";
@@ -877,7 +790,7 @@ function TransformData(array) {
       let value = obj[key];
       let lable = obj[key];
 
-      
+
       transformedArray.push({ label: lable, value: value });
     }
   });
@@ -922,7 +835,7 @@ export default function AutoComplatete() {
   const dispatch = useDispatch();
   const BookListState = useSelector((state) => state.book);
   const [bookData, setBookData] = React.useState([]);
-  const onHandleClick = (e) => { 
+  const onHandleClick = (e) => {
     dispatch(StoreSearchFilterValue({ type: "search", data: e.target.value }));
   };
 
@@ -932,8 +845,8 @@ export default function AutoComplatete() {
     }
   };
 
-  const onHandleKey = (e) => { 
-    if (e.key === "Enter") { 
+  const onHandleKey = (e) => {
+    if (e.key === "Enter") {
       dispatch(
         StoreSearchFilterValue({
           type: "search",
