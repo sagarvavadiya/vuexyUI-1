@@ -1,32 +1,25 @@
-export const ReduxData = `//App.js/////redux///////////////////////////////////////////////////////////////////////
- "redux-thunk": "^3.1.0",
-   "react-redux": "^9.1.0",
-     "@reduxjs/toolkit": "^2.2.1",
+export const ReduxData = `
+
+//App.js/////redux///////////////////////////////////////////////////////////////////////
+npm i redux-thunk@3.1.0 react-redux@9.1.0" @reduxjs/toolkit@2.2.1
 import React from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { increment, decrement } from "./counterSlice";
-import { ApiCall } from "./action";
-import TablePage from "./CRUD/Table";
-
-function App() {
-  const count = useSelector((state) => state.counter.value);
+import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { ApiCall } from '../utills/redux/action';
+import { decrement } from '../utills/redux/slice';
+const Home = () => {
+  const count = useSelector(state => state.counter.value);
   const dispatch = useDispatch();
-
   return (
     <div>
-      <h1>Redux Counter App</h1>
-      <div>
-        <button onClick={() => dispatch(ApiCall())}>Increment</button>
-        <span>{count}</span>
-        <button onClick={() => dispatch(decrement())}>Decrement</button>
-
-        <TablePage/>
-      </div>
+      <button onClick={() => dispatch(ApiCall())}>Increment</button>
+      <span>{count}</span>
+      <button onClick={() => dispatch(decrement())}>Decrement</button>
     </div>
   );
-}
+};
 
-export default App;
+export default Home;
 
 
 
@@ -76,7 +69,73 @@ export const counterReducer = counterSlice.reducer;
 
 
 //Action////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-import { GETAPI } from '../common';
+
+ApiCall
+import axios from 'axios';
+
+const headers = new Headers({
+  'Content-Type': 'application/json',
+  'x-api-key': 'DEMO-API-KEY',
+});
+// return "$&{"result"}"
+var requestOptions = {
+  headers: headers,
+};
+export const POSTAPI = (url, data) => {
+  return new Promise((resolve, reject) => {
+    axios
+      .post(url, data, requestOptions)
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};
+export const GETAPI = url => {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(url, requestOptions)
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};
+
+export const PostFormData = (url, dataObject) => {
+  return new Promise((resolve, reject) => {
+    // Create a new FormData instance
+    const formData = new FormData();
+    for (let key in dataObject) {
+      if (dataObject[key] instanceof File) {
+        // If the value is a file, append it as a file
+        formData.append(key, dataObject[key]);
+      } else {
+        // Otherwise, just append it as a regular field
+        formData.append(key, dataObject[key]);
+      }
+    }
+    // Send POST request with FormData
+    axios
+      .post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        resolve(response.data);
+      })
+      .catch(error => {
+        reject(error);
+      });
+  });
+};
+
+
 import { increment, decrement, login, users } from './slice';
 export const ApiCall = params => dispatch => {
   const headers = new Headers({
@@ -151,10 +210,295 @@ import store from './utills/redux/store';
   <Provider store={store}>
       <App />
     </Provider>
+
 `;
 
 export const Routing = `
-Routing
+// Router
+
+import React from 'react';
+import './App.css';
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from 'react-router-dom';
+import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
+import LoginPage from './pages/Login';
+import { DashboardLayout, LoginLayout } from './components/layout';
+
+const userData = () => {
+  let user = localStorage.getItem('user');
+  try {
+    return JSON.parse(user);
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+// Mock Authentication Function
+const isAuthenticated = () => {
+  const user = { email: 'email' }; // userData();
+  return user && user.email;
+};
+
+// Private Route Component
+const PrivateRoute = ({ children, user }) => {
+  console.log({ user });
+  return isAuthenticated() ? (
+    <DashboardLayout>{children}</DashboardLayout>
+  ) : (
+    <Navigate to='/login' />
+  );
+};
+
+// Redirect if Already Logged In
+const PublicRoute = ({ children, user }) => {
+  console.log({ user });
+  return isAuthenticated() ? (
+    <Navigate to='/dashboard' />
+  ) : (
+    <LoginLayout>{children}</LoginLayout>
+  );
+};
+const App = () => {
+  const user = { email: 'email' }; //useSelector(state => state.counter);
+
+  return (
+    <Router>
+      <Routes>
+        {/* Public Route */}
+        <Route path='/' element={<Home />} />
+
+        {/* Redirect to Dashboard if Logged In */}
+        <Route
+          path='/login'
+          element={
+            <PublicRoute user={user}>
+              <LoginPage />
+            </PublicRoute>
+          }
+        />
+
+        {/* Private Route */}
+        <Route
+          path='/dashboard'
+          element={
+            <PrivateRoute user={user}>
+              <Dashboard />
+            </PrivateRoute>
+          }
+        />
+      </Routes>
+    </Router>
+  );
+};
+
+export default App;
+
+// =============================================================================>Login.js
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+// import { POSTAPI } from '../utills/common';
+// import { useDispatch } from 'react-redux';
+// import { ApiCall, Login } from '../utills/redux/action';
+// import { useNavigate } from 'react-router-dom';
+
+const LoginPage = () => {
+  const Navigate = useNavigate();
+  // const Navigate = () => Navigation('/dashboard');
+  // const dispatch = useDispatch();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: '',
+  });
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+  const OnSubmit = e => {
+    Navigate('/dashboard');
+    // dispatch(Login(formData, Navigate));
+  };
+
+  return (
+    <>
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"></link>
+      <style jsx>
+        {
+          body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Jost', sans-serif;
+            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
+          }
+          .main {
+            width: 350px;
+            height: 500px;
+            background: red;
+            overflow: hidden;
+            background: url('https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38')
+              no-repeat center/ cover;
+            border-radius: 10px;
+            box-shadow: 5px 20px 50px #000;
+          }
+          #chk {
+            display: none;
+          }
+          .signup {
+            position: relative;
+            width: 100%;
+            height: 100%;
+          }
+          label {
+            color: #fff;
+            font-size: 2.3em;
+            justify-content: center;
+            display: flex;
+            margin: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.5s ease-in-out;
+          }
+          input {
+            width: 60%;
+            height: 10px;
+            background: #e0dede;
+            justify-content: center;
+            display: flex;
+            margin: 20px auto;
+            padding: 12px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+          }
+          button {
+            width: 60%;
+            height: 40px;
+            margin: 10px auto;
+            justify-content: center;
+            display: block;
+            color: #fff;
+            background: #573b8a;
+            font-size: 1em;
+            font-weight: bold;
+            margin-top: 30px;
+            outline: none;
+            border: none;
+            border-radius: 5px;
+            transition: 0.2s ease-in;
+            cursor: pointer;
+          }
+          button:hover {
+            background: #6d44b8;
+          }
+          .login {
+            height: 460px;
+            background: #eee;
+            border-radius: 60% / 10%;
+            transform: translateY(-164px);
+            transition: 0.8s ease-in-out;
+          }
+          .login label {
+            color: #573b8a;
+            transform: scale(0.6);
+          }
+
+          #chk:checked ~ .login {
+            transform: translateY(-500px);
+          }
+          #chk:checked ~ .login label {
+            transform: scale(1);
+          }
+          #chk:checked ~ .signup label {
+            transform: scale(0.6);
+          }
+        }{' '}
+      </style>
+      <>
+        <title>Slide Navbar</title>
+        <link rel='stylesheet' type='text/css' href='slide navbar style.css' />
+        <link
+          href='https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap'
+          rel='stylesheet'
+        />
+        <div className='main'>
+          <input type='checkbox' id='chk' aria-hidden='true' />
+          <div className='signup'>
+            <div>
+              <label htmlFor='chk' aria-hidden='true'>
+                Sign up
+              </label>
+              <input
+                type='text'
+                name='txt'
+                placeholder='User name'
+                required=''
+              />
+              <input
+                type='email'
+                name='email'
+                placeholder='Email'
+                required=''
+              />
+              <input
+                type='number'
+                name='broj'
+                placeholder='BrojTelefona'
+                required=''
+              />
+              <input
+                type='password'
+                name='pswd'
+                placeholder='Password'
+                required=''
+              />
+              <button>Sign up</button>
+            </div>
+          </div>
+          <div className='login'>
+            <div>
+              <label htmlFor='chk' aria-hidden='true'>
+                Login
+              </label>
+              <input
+                type='email'
+                name='email'
+                placeholder='Email'
+                required=''
+                onChange={handleChange}
+              />
+              <input
+                type='password'
+                name='password'
+                placeholder='Password'
+                required=''
+                onChange={handleChange}
+              />
+              <button onClick={OnSubmit}>Login</button>
+            </div>
+          </div>
+        </div>
+      </>
+    </>
+  );
+};
+
+export default LoginPage;
+
+
+// =============================================================================>Layout.js
+
 const Sidebar = () => {
   return (
     <>
@@ -599,289 +943,6 @@ export const LoginLayout = ({ children }) => {
   return <>{children}</>;
 };
 
-import React from 'react';
-import './App.css';
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Navigate,
-} from 'react-router-dom';
-import Dashboard from './pages/Dashboard';
-import Home from './pages/Home';
-import { DashboardLayout, LoginLayout } from './component/Layoute';
-import LoginPage from './pages/Login';
-import { useSelector } from 'react-redux';
-
-const userData = () => {
-  let user = localStorage.getItem('user');
-  try {
-    return JSON.parse(user);
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-};
-// Mock Authentication Function
-const isAuthenticated = () => {
-  const user = userData();
-  return user && user.email;
-};
-
-// Private Route Component
-const PrivateRoute = ({ children, user }) => {
-  console.log({ user });
-  return isAuthenticated() ? (
-    <DashboardLayout>{children}</DashboardLayout>
-  ) : (
-    <Navigate to='/login' />
-  );
-};
-
-// Redirect if Already Logged In
-const PublicRoute = ({ children, user }) => {
-  console.log({ user });
-  return isAuthenticated() ? (
-    <Navigate to='/dashboard' />
-  ) : (
-    <LoginLayout>{children}</LoginLayout>
-  );
-};
-// =============================================================================>Login.js
-import React, { useState } from 'react';
-import { POSTAPI } from '../utills/common';
-import { useDispatch } from 'react-redux';
-import { ApiCall, Login } from '../utills/redux/action';
-import { useNavigate } from 'react-router-dom';
-
-const LoginPage = () => {
-  const Navigate = useNavigate();
-  // const Navigate = () => Navigation('/dashboard');
-  const dispatch = useDispatch();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-  const OnSubmit = e => {
-    dispatch(Login(formData, Navigate));
-  };
-
-  return (
-    <>
-      <style jsx>
-        {
-          body {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            font-family: 'Jost', sans-serif;
-            background: linear-gradient(to bottom, #0f0c29, #302b63, #24243e);
-          }
-          .main {
-            width: 350px;
-            height: 500px;
-            background: red;
-            overflow: hidden;
-            background: url('https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38')
-              no-repeat center/ cover;
-            border-radius: 10px;
-            box-shadow: 5px 20px 50px #000;
-          }
-          #chk {
-            display: none;
-          }
-          .signup {
-            position: relative;
-            width: 100%;
-            height: 100%;
-          }
-          label {
-            color: #fff;
-            font-size: 2.3em;
-            justify-content: center;
-            display: flex;
-            margin: 50px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.5s ease-in-out;
-          }
-          input {
-            width: 60%;
-            height: 10px;
-            background: #e0dede;
-            justify-content: center;
-            display: flex;
-            margin: 20px auto;
-            padding: 12px;
-            border: none;
-            outline: none;
-            border-radius: 5px;
-          }
-          button {
-            width: 60%;
-            height: 40px;
-            margin: 10px auto;
-            justify-content: center;
-            display: block;
-            color: #fff;
-            background: #573b8a;
-            font-size: 1em;
-            font-weight: bold;
-            margin-top: 30px;
-            outline: none;
-            border: none;
-            border-radius: 5px;
-            transition: 0.2s ease-in;
-            cursor: pointer;
-          }
-          button:hover {
-            background: #6d44b8;
-          }
-          .login {
-            height: 460px;
-            background: #eee;
-            border-radius: 60% / 10%;
-            transform: translateY(-164px);
-            transition: 0.8s ease-in-out;
-          }
-          .login label {
-            color: #573b8a;
-            transform: scale(0.6);
-          }
-
-          #chk:checked ~ .login {
-            transform: translateY(-500px);
-          }
-          #chk:checked ~ .login label {
-            transform: scale(1);
-          }
-          #chk:checked ~ .signup label {
-            transform: scale(0.6);
-          }
-        }{' '}
-      </style>
-      <>
-        <title>Slide Navbar</title>
-        <link rel='stylesheet' type='text/css' href='slide navbar style.css' />
-        <link
-          href='https://fonts.googleapis.com/css2?family=Jost:wght@500&display=swap'
-          rel='stylesheet'
-        />
-        <div className='main'>
-          <input type='checkbox' id='chk' aria-hidden='true' />
-          <div className='signup'>
-            <div>
-              <label htmlFor='chk' aria-hidden='true'>
-                Sign up
-              </label>
-              <input
-                type='text'
-                name='txt'
-                placeholder='User name'
-                required=''
-              />
-              <input
-                type='email'
-                name='email'
-                placeholder='Email'
-                required=''
-              />
-              <input
-                type='number'
-                name='broj'
-                placeholder='BrojTelefona'
-                required=''
-              />
-              <input
-                type='password'
-                name='pswd'
-                placeholder='Password'
-                required=''
-              />
-              <button>Sign up</button>
-            </div>
-          </div>
-          <div className='login'>
-            <div>
-              <label htmlFor='chk' aria-hidden='true'>
-                Login
-              </label>
-              <input
-                type='email'
-                name='email'
-                placeholder='Email'
-                required=''
-                onChange={handleChange}
-              />
-              <input
-                type='password'
-                name='password'
-                placeholder='Password'
-                required=''
-                onChange={handleChange}
-              />
-              <button onClick={OnSubmit}>Login</button>
-            </div>
-          </div>
-        </div>
-      </>
-    </>
-  );
-};
-
-export default LoginPage;
-
-//============================================================================> App.js
-const App = () => {
-  const user = useSelector(state => state.counter);
-
-  const test = () => {
-    console.log({ user });
-  };
-  return (
-    <Router>
-      <button onClick={test}>Test</button>
-      <Routes>
-        {/* Public Route */}
-        <Route path='/' element={<Home />} />
-
-        {/* Redirect to Dashboard if Logged In */}
-        <Route
-          path='/login'
-          element={
-            <PublicRoute user={user}>
-              <LoginPage />
-            </PublicRoute>
-          }
-        />
-
-        {/* Private Route */}
-        <Route
-          path='/dashboard'
-          element={
-            <PrivateRoute user={user}>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-      </Routes>
-    </Router>
-  );
-};
-
-export default App;
-
 `;
 
 export const ApiCall = `
@@ -953,13 +1014,11 @@ export const PostFormData = (url, dataObject) => {
 `;
 
 export const CRUD = `
-Table
-import React, { useEffect, useState } from 'react';
-import { GetUserList } from '../utills/redux/action';
-import { useDispatch, useSelector } from 'react-redux';
-import CommonModal from './Model';
-import { POSTAPI, PostFormData } from '../utills/common';
 
+import React, { useEffect, useState } from 'react';
+import { GetUserList, PostFormData, POSTAPI } from '../utills/redux/action';
+import { useDispatch, useSelector } from 'react-redux';
+import Modal from 'react-bootstrap/Modal';
 const useForm = initialValues => {
   const [values, setValues] = useState(initialValues);
   const [errors, setErrors] = useState({});
@@ -973,8 +1032,6 @@ const useForm = initialValues => {
         break;
       case 'email':
         if (!value) error = 'Email is required.';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          error = 'Invalid email format.';
         break;
       case 'password':
         if (!value) error = 'Password is required.';
@@ -1325,11 +1382,6 @@ const Table = () => {
 };
 
 export default Table;
-// -------------------------------------------------------------Modal
-
-import { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 
 function CommonModal({ show, handleClose, children, title }) {
   return (
@@ -1343,8 +1395,6 @@ function CommonModal({ show, handleClose, children, title }) {
     </>
   );
 }
-
-export default CommonModal;
 
 `;
 

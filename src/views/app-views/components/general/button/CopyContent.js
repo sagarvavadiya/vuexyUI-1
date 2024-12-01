@@ -410,99 +410,23 @@ function extractKeyFromArray(arr, key) {
 }
 `;
 
-const paginationContent = `.pageSpotBox{
-    display: flex;
-    width: 25rem;
-    justify-content: space-around;
-}
+const paginationContent = `
 
-.displayNone{
-    display: none;
-}
+import React, { useEffect } from 'react';
 
-.squre{
-    -webkit-text-security: square;
-}
-
-.test{
-    color: red;
-}
-
-.pageElement{
-    font-size: 2rem;
-}
-
-.PageBox{
-    height: 40vw;
-}
-.paginationDiv{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-.pointer{
-    cursor: pointer;
-}
-
-
-
-
-
-
-
-
-
-export const pageData = [
-  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-  "Sed ac dui aliquam, efficitur sapien ut, consectetur nunc.",
-  "Integer euismod purus vel libero vehicula congue.",
-  "Vivamus ultrices quam eget dui eleifend, eu placerat tellus suscipit.",
-  "Praesent ut felis ac mi congue ultrices.",
-  "Fusce dignissim turpis eu ante fermentum cursus.",
-  "Donec non sem non nisl tristique hendrerit.",
-  "Nullam volutpat magna vitae nibh feugiat, id volutpat sapien ullamcorper.",
-  "Cras tincidunt nunc id ipsum mattis, eget interdum mi commodo.",
-  "Vestibulum in quam nec orci aliquet pellentesque.",
-  "Maecenas consectetur velit nec odio commodo, et volutpat mauris lobortis.",
-  "Phasellus vitae risus sed lorem elementum tincidunt.",
-  "Ut non sapien malesuada, consequat nisi vitae, luctus sapien.",
-  "Aenean vitae nunc dapibus, maximus nunc at, efficitur lacus.",
-  "Quisque luctus elit at erat efficitur fringilla.",
-  "In tincidunt leo non volutpat mattis.",
-  "Morbi bibendum quam in enim varius ullamcorper.",
-  "Vivamus pharetra felis et tincidunt vehicula.",
-  "Suspendisse eget lorem vel nisi commodo bibendum.",
-  "Pellentesque eleifend dui a ultrices congue.",
-  "Nam et urna a ipsum efficitur dapibus.",
-  "Curabitur fringilla risus sit amet justo consequat eleifend.",
-  "Proin auctor enim sit amet turpis hendrerit iaculis.",
-  "Aliquam rhoncus augue ac purus cursus, nec tristique eros consectetur.",
-  "Vivamus a metus sed dolor consectetur cursus.",
-  "Nulla sollicitudin odio vitae metus interdum consectetur.",
-  "Fusce tristique ex vitae risus mattis, ut consectetur ligula tempus.",
-  "Nunc et purus tristique, faucibus ipsum vel, feugiat ex.",
-  "Sed fermentum lectus sed consectetur dignissim.",
-  "Etiam sed urna sed ipsum dapibus sagittis.",
-  "Phasellus vulputate libero sed ex tincidunt feugiat.",
-];
-
-
-
-import React, { useState } from "react";
-import "./pagination.css";
-import { pageData as data } from "./pageData";
-const itemsPerPage = 2; // Number of items to display per page
-
-const Pagination = () => {
-  const [currentPage, setCurrentPage] = useState(1);
-
+const Pagination = ({
+  setCurrentPageData,
+  setCurrentPage,
+  currentPage,
+  data,
+  itemsPerPage,
+}) => {
   // Calculate the index range of items to display on the current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
 
   // Change the current page
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = pageNumber => {
     setCurrentPage(pageNumber);
   };
 
@@ -512,108 +436,202 @@ const Pagination = () => {
     pageNumbers.push(i);
   }
 
-  let halfLength = (pageNumbers.length / 2) | 0;
-  const dotElement =
-    pageNumbers.indexOf(currentPage) <= halfLength
-      ? currentPage + 2
-      : currentPage - 2;
+  useEffect(() => {
+    const currentItems = data.slice(indexOfFirstItem, indexOfLastItem);
+    setCurrentPageData(currentItems);
+  }, [currentPage]);
+  return (
+    <>
+      <style jsx>
+        {
+          .pageSpotBox {
+            display: flex;
+            width: 25rem;
+            justify-content: space-around;
+          }
+
+          .displayNone {
+            display: none;
+          }
+
+          .squre {
+            -webkit-text-security: square;
+          }
+
+          .test {
+            color: red;
+          }
+
+          .pageElement {
+            font-size: 2rem;
+          }
+
+          .PageBox {
+            height: 40vw;
+          }
+          .paginationDiv {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+          }
+          .pointer {
+            cursor: pointer;
+          }
+        }
+      </style>
+      <div>
+        {/* Render the current items */}
+
+        <div className='paginationDiv'>
+          <div className='pageSpotBox'>
+            <div>
+              <span className='pointer' onClick={() => setCurrentPage(1)}>
+                ⏪
+              </span>
+              <span
+                className='pointer'
+                onClick={() =>
+                  setCurrentPage(
+                    currentPage === 1 ? currentPage : currentPage - 1,
+                  )
+                }
+              >
+                ◀️
+              </span>
+            </div>
+
+            {pageNumbers.map(pageNumber => (
+              <div
+                key={pageNumber}
+                onClick={() => handlePageChange(pageNumber)}
+                style={{
+                  fontWeight: pageNumber === currentPage ? 'bold' : 'normal',
+                  cursor: 'pointer',
+                }}
+                className={{
+                  [
+                    1,
+                    currentPage + 2,
+                    currentPage - 2,
+                    pageNumbers[pageNumbers.length - 1],
+                    currentPage,
+                    currentPage - 1,
+                    currentPage + 1,
+                  ].includes(pageNumber)
+                    ? ''
+                    : 'displayNone'
+                } }
+              >
+                {[currentPage + 2, currentPage - 2].includes(pageNumber) ? (
+                  <>
+                    {[1, pageNumbers[pageNumbers.length - 1]].includes(
+                      pageNumber,
+                    ) ? (
+                      pageNumber
+                    ) : (
+                      <div>o o o</div>
+                    )}
+                  </>
+                ) : (
+                  pageNumber
+                )}
+              </div>
+            ))}
+            <div>
+              <span
+                className='pointer'
+                onClick={() =>
+                  setCurrentPage(
+                    currentPage === pageNumbers[pageNumbers.length - 1]
+                      ? pageNumbers[pageNumbers.length - 1]
+                      : currentPage + 1,
+                  )
+                }
+              >
+                ▶️
+              </span>
+              <span
+                className='pointer'
+                onClick={() =>
+                  setCurrentPage(pageNumbers[pageNumbers.length - 1])
+                }
+              >
+                ⏩
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+export default Pagination;
+
+
+import React, { useState } from 'react';
+import Pagination from '../components/pagination';
+const Home = () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageData, setCurrentPageData] = useState([]);
+  const itemsPerPage = 2; // Number of items to display per page
+  const data = [
+    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+    'Sed ac dui aliquam, efficitur sapien ut, consectetur nunc.',
+    'Integer euismod purus vel libero vehicula congue.',
+    'Vivamus ultrices quam eget dui eleifend, eu placerat tellus suscipit.',
+    'Praesent ut felis ac mi congue ultrices.',
+    'Fusce dignissim turpis eu ante fermentum cursus.',
+    'Donec non sem non nisl tristique hendrerit.',
+    'Nullam volutpat magna vitae nibh feugiat, id volutpat sapien ullamcorper.',
+    'Cras tincidunt nunc id ipsum mattis, eget interdum mi commodo.',
+    'Vestibulum in quam nec orci aliquet pellentesque.',
+    'Maecenas consectetur velit nec odio commodo, et volutpat mauris lobortis.',
+    'Phasellus vitae risus sed lorem elementum tincidunt.',
+    'Ut non sapien malesuada, consequat nisi vitae, luctus sapien.',
+    'Aenean vitae nunc dapibus, maximus nunc at, efficitur lacus.',
+    'Quisque luctus elit at erat efficitur fringilla.',
+    'In tincidunt leo non volutpat mattis.',
+    'Morbi bibendum quam in enim varius ullamcorper.',
+    'Vivamus pharetra felis et tincidunt vehicula.',
+    'Suspendisse eget lorem vel nisi commodo bibendum.',
+    'Pellentesque eleifend dui a ultrices congue.',
+    'Nam et urna a ipsum efficitur dapibus.',
+    'Curabitur fringilla risus sit amet justo consequat eleifend.',
+    'Proin auctor enim sit amet turpis hendrerit iaculis.',
+    'Aliquam rhoncus augue ac purus cursus, nec tristique eros consectetur.',
+    'Vivamus a metus sed dolor consectetur cursus.',
+    'Nulla sollicitudin odio vitae metus interdum consectetur.',
+    'Fusce tristique ex vitae risus mattis, ut consectetur ligula tempus.',
+    'Nunc et purus tristique, faucibus ipsum vel, feugiat ex.',
+    'Sed fermentum lectus sed consectetur dignissim.',
+    'Etiam sed urna sed ipsum dapibus sagittis.',
+    'Phasellus vulputate libero sed ex tincidunt feugiat.',
+  ];
   return (
     <div>
-      {/* Render the current items */}
-      <div className="PageBox">
+      <div className='PageBox'>
         <ul>
-          {currentItems.map((item) => (
-            <li className="pageElement" key={item.id}>
+          {currentPageData.map(item => (
+            <li className='pageElement' key={item.id}>
               {item}
             </li>
           ))}
         </ul>
       </div>
-
-      <div className="paginationDiv">
-        <div className="pageSpotBox">
-          <div>
-            <span className="pointer" onClick={() => setCurrentPage(1)}>
-              ⏪
-            </span>
-            <span
-              className="pointer"
-              onClick={() =>
-                setCurrentPage(
-                  currentPage === 1 ? currentPage : currentPage - 1
-                )
-              }
-            >
-              ◀️
-            </span>
-          </div>
-
-          {pageNumbers.map((pageNumber) => (
-            <div
-              key={pageNumber}
-              onClick={() => handlePageChange(pageNumber)}
-              style={{
-                fontWeight: pageNumber === currentPage ? "bold" : "normal",
-                cursor: "pointer",
-              }}
-              className={"$&{
-                [
-                  1,
-                  currentPage + 2,
-                  currentPage - 2,
-                  pageNumbers[pageNumbers.length - 1],
-                  currentPage,
-                  currentPage - 1,
-                  currentPage + 1
-                ].includes(pageNumber)
-                  ? ''
-                  : 'displayNone'
-              } "}
-            >
-              {[currentPage + 2, currentPage - 2].includes(pageNumber) ? (
-                <>
-                  {[1, pageNumbers[pageNumbers.length - 1]].includes(
-                    pageNumber
-                  ) ? (
-                    pageNumber
-                  ) : (
-                    <div>o o o</div>
-                  )}
-                </>
-              ) : (
-                pageNumber
-              )}
-            </div>
-          ))}
-          <div>
-            <span
-              className="pointer"
-              onClick={() =>
-                setCurrentPage(
-                  currentPage === pageNumbers[pageNumbers.length - 1]
-                    ? pageNumbers[pageNumbers.length - 1]
-                    : currentPage + 1
-                )
-              }
-            >
-              ▶️
-            </span>
-            <span
-              className="pointer"
-              onClick={() =>
-                setCurrentPage(pageNumbers[pageNumbers.length - 1])
-              }
-            >
-              ⏩
-            </span>
-          </div>
-        </div>
-      </div>
+      <Pagination
+        setCurrentPageData={setCurrentPageData}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={itemsPerPage}
+        data={data}
+      />
     </div>
   );
 };
 
-export default Pagination;
+export default Home;
+
 `;
 
 const autocomplateContent = `
@@ -703,48 +721,61 @@ const autoComplateFunction = (value, columnID, e) => {
   `;
 
 const filterContent = `
-  const [tableData, setTableData] = useState(TableData);
-const [filters, setFilters] = useState({
-    fName: "",
-    lName: "",
-    handleBy: "",
-  });
-  useEffect(() => {
-    setTableData([]);
-    let fnameFilterWord = filters?.fName.length > 0 ? filters?.fName : "";
-    let lnameFilterWord = filters?.lName.length > 0 ? filters?.lName : "";
-    let handleByFilterWord =
-      filters?.handleBy.length > 0 ? filters?.handleBy : "";
+ const data = [
+  { name: 'Sagar', email: 'admin@ds.com', date: 1698787200000 },
+  { name: 'Arya', email: 'arya@xyz.com', date: 1698873600000 },
+  { name: 'Maya', email: 'maya@abc.com', date: 1698960000000 },
+  { name: 'John', email: 'john@company.com', date: 1699046400000 },
+  { name: 'Sagar', email: 'sagar@company.com', date: 1699132800000 },
+  { name: 'Sophia', email: 'sophia@mail.com', date: 1699219200000 },
+  { name: 'Ryan', email: 'ryan@network.com', date: 1699305600000 },
+  { name: 'Liam', email: 'liam@web.com', date: 1699392000000 },
+  { name: 'Emma', email: 'emma@tech.com', date: 1699478400000 },
+  { name: 'Olivia', email: 'olivia@edu.com', date: 1699564800000 },
+];
 
-    let filterKeyWords = [
-      { fName: fnameFilterWord },
-      { lName: lnameFilterWord },
-      { handleBy: handleByFilterWord },
-    ];
+function filterSearch(option, filterValue) {
+  const { name, email, startDate, endDate } = filterValue;
 
-    function filterObjectsByKeywords(objectArray, filterKeywords) {
-      console.log(objectArray, filterKeywords);
-      return objectArray.filter((object) => {
-        for (let filterObj of filterKeywords) {
-          const field = Object.keys(filterObj)[0];
-          const keyword = filterObj[field];
+  if (option === 'filter') {
+    // Filter objects based on exact match
+    return data.filter(
+      item =>
+        (name ? item.name === name : true) &&
+        (email ? item.email === email : true) &&
+        (startDate ? item.date >= startDate : true) &&
+        (endDate ? item.date <= endDate : true),
+    );
+  } else if (option === 'search') {
+    // Search objects based on inclusion of keyword or exact date match
+    return data.filter(
+      item =>
+        (name ? item.name.toLowerCase().includes(name.toLowerCase()) : false) ||
+        (email
+          ? item.email.toLowerCase().includes(email.toLowerCase())
+          : false) ||
+        (startDate && item.date === startDate) || // Exact match for startDate
+        (endDate && item.date === endDate), // Exact match for endDate
+    );
+  } else {
+    return [];
+  }
+}
 
-          if (
-            !String(object[field]).toLowerCase().includes(keyword.toLowerCase())
-          ) {
-            return false;
-          }
-        }
-        return true;
-      });
-    }
+// Example usage
+const filterValue = {
+  name: 'Sagar',
+  email: 'admin@ds.com',
+  startDate: 1698787200000,
+  endDate: 1699132800000,
+};
+console.log('Filter Results:', filterSearch('filter', filterValue)); // Filter example
+console.log(
+  'Search Results:',
+  filterSearch('search', { name: 'Sagar', startDate: 1698787200000 }),
+); // Search example
 
-    // Filter objects based on keywords
-    const filteredObjects = filterObjectsByKeywords(TableData, filterKeyWords);
-
-    // Output the filtered objects
-    setTableData(filteredObjects);
-  }, [filters]);`;
+ `;
 
 const checkBoxContent = `
   const IsAllChacked = tableData.every((i, index) => i?.isChacked === true);
